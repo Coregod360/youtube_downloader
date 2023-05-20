@@ -1,9 +1,9 @@
 import typer
 from typing import Optional
-import pytube
+import downloader
 from rich.progress import track
-import ffmpeg
 import os
+import video_processing
 #remove this
 import time
 
@@ -12,6 +12,13 @@ app = typer.Typer(help='CLI app for downloading and clipping YouTube videos. Off
 # Change more tradional CLI app add -D / --download -C --clip flags for download and clip
 # Add -h flag for help
 
+@app.command()
+def update ():
+    """
+    Updates the app to the latest version along with all dependencies.
+    """
+    pass
+
 
 @app.command()
 def download (url: str = typer.Argument("", help="Url for a YouTube video to download")):
@@ -19,19 +26,14 @@ def download (url: str = typer.Argument("", help="Url for a YouTube video to dow
     Downloads a full YouTube video in the highest resolution available. 
     """
 
-    yt = pytube.YouTube(
-        url,
-        on_progress_callback=progress_func,
-        on_complete_callback=complete_func,
-        use_oauth=True,
-        allow_oauth_cache=True
-    )
-    yt.streams.get_highest_resolution().download(
-        # Make configurable by user
-        output_path="/home/kensix/Videos/YT downloads/",
-        filename=yt.title + ".mp4",
-        skip_existing=True
-    )
+    try:
+        downloader.yld_download(url)
+    except Exception as e:
+        typer.echo(f"Error: {e}")
+        typer.echo(f"Please check your url and try again")
+        typer.echo(f"Exiting...")
+        time.sleep(2)
+        raise typer.Exit()
 
 
 @app.command()
@@ -67,93 +69,33 @@ def clip (
     if(out_file == None):
         out_file = typer.prompt(f"Enter output file name") 
     
-    if(preset == None):
-        preset = ["4chan", "discord", "medium-quality", "full-quality"]
+    # if(preset == None):
+    #     preset = ["4chan", "discord", "medium-quality", "full-quality"]
     
-    yt = pytube.YouTube(
-        url,
-        on_progress_callback=progress_func,
-        on_complete_callback=complete_func,
-        use_oauth=True,
-        allow_oauth_cache=True
-    )
-    yt.streams.get_highest_resolution().download(
-        output_path="/home/kensix/Videos/YT downloads/",
-        filename=yt.title + ".mp4",
-        skip_existing=True
-    )
+    try:
+        source_file = downloader.yld_download(url)
+    except Exception as e:
+        typer.echo(f"Error: {e}")
+        typer.echo(f"Please check your url and try again")
+        typer.echo(f"Exiting...")
+        time.sleep(2)
+        raise typer.Exit()
 
-    source_file = (f'/home/kensix/Videos/YT downloads/{yt.title}.mp4')
-
-    typer.echo(ffmpeg_trim(source_file, start_time, end_time, out_file, preset))
+    # source_file = (f'/home/kensix/Videos/YT downloads/title.mp4')
+    print(source_file)
+    typer.echo(video_processing.ffmpeg_trim(source_file, start_time, end_time, out_file, preset))
     
 
-    # Delete original file
-    # os.remove(source)
-
-
-def ffmpeg_trim(source, start_time, end_time, out_file, preset):
-    #Make configurable by user
-    base_path = "/home/kensix/Videos/YT downloads/"
-    
-    #CAlculate file size
-    # FFMPEG PROBE TO GET THE SOURCE FILE SIZE
-    # FFMPEG PROBE TO GET THE DURATION OF THE SOURCE FILE
-    # LEAVES ROOM FOR INTERPERETATION ON THE LOWER RESOLUTIONS
-    #DIVIDE SIZE BY LENGHT TO GET SIZE PER SECOND
-    #IF SIZE PER SECOND FOR DURATION LARGER THAN MAX SIZE FOR PRESET
-    #THEN SCALE DOWN TO RESOLUTION 
-    # NEED SOME DATA ON THE SIZE OF THE DIFFERENT RESOLUTIONS
-
-
-
-
-    #if(preset == "4chan"):
-        # Maximum file size is 4096KB for /gif/ and 6144KB for /wsg/.
-        # Maximum duration is 300 seconds (5 minutes).
-        # Maximum resolution is 2048x2048 pixels.
-        # No audio streams except on /gif/ and /wsg/. (use -an)
-        # Vp9 codec
-
-    #if(preset == "discord"):
-        # Maximum file size is 8MB.
-        # No maximum duration.
-        # No maximum resolution.
-        # Audio is allowed.
-    
-    #if(preset == "medium-quality"):
-        # scale down to 720p
-
-    #if(preset == "full-quality"):
-        #maintain original quality
-
-    ext = ".mp4"
-    out_file = base_path + out_file + ext
-    
-    input_stream = ffmpeg.input(source)
-    pts = "PTS-STARTPTS"
-    
-    video = input_stream.trim(start=start_time, end=end_time).setpts(pts)
-    audio = (input_stream
-            .filter("atrim", start=start_time, end=end_time)
-            .filter("asetpts", pts)
-    )
-
-    video_and_audio = ffmpeg.concat(video, audio, v=1, a=1)
-    output_stream = ffmpeg.output(video_and_audio, out_file, format="mp4")
-    output_stream.run()
-    return('Done')
-
-
-def progress_func(stream, chunk, bytes_remaining):
-    total_size = stream.filesize
-    bytes_downloaded = total_size - bytes_remaining
-    for bytes_downloaded in track(range(total_size), description="Downloading..."):
-        continue
+#  OLD PROGRESS BAR CODE
+# def progress_func(stream, chunk, bytes_remaining):
+#     total_size = stream.filesize
+#     bytes_downloaded = total_size - bytes_remaining
+#     for bytes_downloaded in track(range(total_size), description="Downloading..."):
+#         continue
     
 
-def complete_func(stream, file_handle):
-    print("Download complete")
+# def complete_func(stream, file_handle):
+#     print("Download complete")
     
 
 if __name__ == "__main__":
