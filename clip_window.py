@@ -6,7 +6,7 @@ from PySide6.QtMultimediaWidgets import QVideoWidget
 import range_slider
 
 class convert(QtWidgets.QWidget):
-    def __init__(self, min_time, max_time=100):
+    def __init__(self, min_time, max_time):
         super().__init__()
         self.setWindowTitle("Shitpost Studio")
 
@@ -15,7 +15,6 @@ class convert(QtWidgets.QWidget):
         self.video_widget = QVideoWidget()
         self.player.setVideoOutput(self.video_widget)
         self.player.setAudioOutput(QAudioOutput())
-        self.player.setSource(QtCore.QUrl.fromLocalFile("test.mp4"))
         self.player.play()
 
         # time slider
@@ -34,7 +33,6 @@ class convert(QtWidgets.QWidget):
         self.preset_select.addItem("source quality")
         self.preset_select.addItem("4chan")
         self.preset_select.addItem("discord")
-
 
         # output preset selector 
         # output file name
@@ -59,7 +57,6 @@ class convert(QtWidgets.QWidget):
         self.layout.addWidget(self.ffmpeg_button)
 
         self.resize(600, 800)
-
 
         self.time_slider.sliderMoved.connect(self.updateSlider)
 
@@ -89,7 +86,7 @@ class convert(QtWidgets.QWidget):
 if __name__ == "__main__":
     app = QtWidgets.QApplication([])
 
-    widget = convert()
+    widget = convert(0,100)
     widget.show()
 
     sys.exit(app.exec())
