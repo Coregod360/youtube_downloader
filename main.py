@@ -24,8 +24,8 @@ if __name__ == "__main__":
             print("URL submitted: " + url_window.url_field.text())
             try:
                 # TODO: Add a way to pass progress back to the progress window
-                progress_window = progress_window.progress()
-                progress_window.show()
+                # progress_window = progress_window.progress()
+                # progress_window.show()
                 downloader.yld_download(url_window.url)
         
             except Exception as e:
@@ -37,16 +37,14 @@ if __name__ == "__main__":
                 sys.exit()
                 
             if(url_window.job == "download"):
-                progress_window.close()
+                # progress_window.close()
                 url_window.close()
 
             if(url_window.job == "convert"):
-                progress_window.close()
+                # progress_window.close()
                 url_window.close()
                 clip_window = clip_window.convert()
                 clip_window.show()
-                
-    
-
+           
 
     sys.exit(app.exec())
