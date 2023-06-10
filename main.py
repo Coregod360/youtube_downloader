@@ -43,7 +43,10 @@ if __name__ == "__main__":
             if(url_window.job == "convert"):
                 # progress_window.close()
                 url_window.close()
-                clip_window = clip_window.convert()
+                # TODO: Add a way to get the video's length in milliseconds   
+                # TODO: add a way to get the downloaded video's path
+                clip_window = clip_window.convert(0, 366000)
+                clip_window.setMedia('/home/kensix/deadNiggerStorage/Coding/youtube_downloader/test.webm')
                 clip_window.show()
            
 

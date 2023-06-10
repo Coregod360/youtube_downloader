@@ -28,22 +28,15 @@ def yld_download(url):
             raise Exception(msg)
 
 
-    def callbackFunc(bytes):
-        return bytes
-
-
     def my_hook(d):
         global final_filename
         global remaining_bytes
         final_filename  = d.get('info_dict').get('_filename')
         remaining_bytes = d.get('info_dict').get('filesize') - d.get('downloaded_bytes')
-        # print("download progress")
-        callbackFunc(remaining_bytes)
-        
+        # print("download progress")        
         if d['status'] == 'finished':
             print('Done downloading, now post-processing ...')
         
-
 
     ydl_opts = {
         'logger': MyLogger(),
