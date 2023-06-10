@@ -18,7 +18,8 @@ class submit(QtWidgets.QWidget):
             self.download_button = QtWidgets.QPushButton("Download")
             self.convert_button = QtWidgets.QPushButton("Convert")
 
-            # self.progress_bar = QtWidgets.QProgressBar()
+            self.progress_bar = QtWidgets.QProgressBar()
+            self.update_progress = lambda progress: self.progress_bar.setValue(progress)
 
             self.download_button.clicked.connect(self.download)
             self.convert_button.clicked.connect(self.convert)
@@ -30,7 +31,7 @@ class submit(QtWidgets.QWidget):
             self.layout.addWidget(self.url_field)
             self.layout.addWidget(self.download_button)
             self.layout.addWidget(self.convert_button)
-            # self.layout.addWidget(self.progress_bar)
+            self.layout.addWidget(self.progress_bar)
 
 
     @QtCore.Slot()

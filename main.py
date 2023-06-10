@@ -26,7 +26,7 @@ if __name__ == "__main__":
                 # TODO: Add a way to pass progress back to the progress window
                 # progress_window = progress_window.progress()
                 # progress_window.show()
-                downloader.yld_download(url_window.url)
+                downloader.yld_download(url_window.url, url_window.update_progress)
         
             except Exception as e:
                 print("Error: " + str(e))

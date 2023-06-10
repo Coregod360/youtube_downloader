@@ -1,7 +1,7 @@
 import yt_dlp
 
 
-def yld_download(url):
+def yld_download(url, progress_callback):
     # TODO: Add something like configparser to let user customize download path etc 
     basepath = "/home/kensix/deadNiggerStorage/Coding/youtube_downloader/output/"
     
@@ -31,9 +31,14 @@ def yld_download(url):
     def my_hook(d):
         global final_filename
         global remaining_bytes
+
+        if not d.get('downloaded_bytes'):
+            return
+
         final_filename  = d.get('info_dict').get('_filename')
         remaining_bytes = d.get('info_dict').get('filesize') - d.get('downloaded_bytes')
-        # print("download progress")        
+        progress_callback((d.get('downloaded_bytes') / d.get('info_dict').get('filesize')) * 100)
+
         if d['status'] == 'finished':
             print('Done downloading, now post-processing ...')
         
